@@ -18,7 +18,7 @@
 import physicalgraph.zigbee.zcl.DataType
 
 metadata {
-	definition (name: "ZigBee RGBW Bulb - Enhanced", namespace: "smartthings", author: "Leppard", runLocally: true, minHubCoreVersion: '000.019.00012', executeCommandsLocally: true) {
+	definition (name: "ZigBee RGBW Bulb - Enhanced", namespace: "smartthings", author: "Leppard") {
 
 		capability "Actuator"
 		capability "Color Control"
@@ -219,22 +219,26 @@ private getScaledSaturation(value) {
 }
 
 def setColor(value){
-	
-	switchStatus = status.switch;
-	
 	log.trace "setColor($value)"
-	zigbee.on() +
+    log.trace "device.currentValue(switch): ${device.currentValue("switch")}"
+
+	def switchStatus = device.currentValue("switch")
+	def returnCmd = //zigbee.on() +
 			zigbee.command(COLOR_CONTROL_CLUSTER, MOVE_TO_HUE_AND_SATURATION_COMMAND,
 					getScaledHue(value.hue), getScaledSaturation(value.saturation), "0000") +
 			zigbee.readAttribute(COLOR_CONTROL_CLUSTER, ATTRIBUTE_SATURATION) +
 			zigbee.readAttribute(COLOR_CONTROL_CLUSTER, ATTRIBUTE_HUE)
-	
-	if (switchStatus) {
-		zigbee.on();
+    
+    if (switchStatus == "on") {
+        //log.trace("And turning on")
+		//returnCmd += zigbee.on();
 	}
 	else {
-		zigbee.off();
+        //log.trace("And turning off")
+		//returnCmd += zigbee.off();
 	}
+    
+    return returnCmd
 }
 
 def setHue(value) {

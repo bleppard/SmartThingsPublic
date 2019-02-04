@@ -219,12 +219,22 @@ private getScaledSaturation(value) {
 }
 
 def setColor(value){
+	
+	switchStatus = status.switch;
+	
 	log.trace "setColor($value)"
 	zigbee.on() +
 			zigbee.command(COLOR_CONTROL_CLUSTER, MOVE_TO_HUE_AND_SATURATION_COMMAND,
 					getScaledHue(value.hue), getScaledSaturation(value.saturation), "0000") +
 			zigbee.readAttribute(COLOR_CONTROL_CLUSTER, ATTRIBUTE_SATURATION) +
 			zigbee.readAttribute(COLOR_CONTROL_CLUSTER, ATTRIBUTE_HUE)
+	
+	if (switchStatus) {
+		zigbee.on();
+	}
+	else {
+		zigbee.off();
+	}
 }
 
 def setHue(value) {
